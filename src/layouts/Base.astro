@@ -1,0 +1,93 @@
+---
+import '@fontsource/manrope/400.css';
+import '@fontsource/manrope/600.css';
+import '@fontsource/manrope/700.css';
+import '@fontsource/manrope/800.css';
+import '@fontsource/noto-serif-display/400.css';
+import '@fontsource/noto-serif-display/500.css';
+import '@fontsource/noto-serif-display/400-italic.css';
+import '@fontsource/dancing-script/500.css';
+import '@fontsource/dancing-script/600.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../config/site';
+import { asset, switchLangPath } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  current?: 'home' | 'shop' | 'story' | 'contact' | 'basket';
+  image?: string;
+  type?: 'website' | 'product';
+  jsonLd?: Record<string, unknown>;
+  noindex?: boolean;
+}
+const { lang, title, description, current, image = '/images/og-image.png', type = 'website', jsonLd, noindex = false } = Astro.props;
+const pathname = Astro.url.pathname;
+const canonical = new URL(pathname, Astro.site);
+const altEl = new URL(switchLangPath(pathname, 'el'), Astro.site);
+const altEn = new URL(switchLangPath(pathname, 'en'), Astro.site);
+const ogImage = new URL(asset(image), Astro.site);
+---
+<!doctype html>
+<html lang={lang} class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="el" href={altEl} />
+    <link rel="alternate" hreflang="en" href={altEn} />
+    <link rel="alternate" hreflang="x-default" href={altEl} />
+    <meta name="theme-color" content="#fffaf1" />
+    <link rel="icon" type="image/png" href={asset('/images/logo-original.png')} />
+    <link rel="apple-touch-icon" href={asset('/images/logo-original.png')} />
+
+    <meta property="og:site_name" content={site.brandName} />
+    <meta property="og:type" content={type === 'product' ? 'product' : 'website'} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === 'el' ? 'el_GR' : 'en_GB'} />
+    <meta property="og:locale:alternate" content={lang === 'el' ? 'en_GB' : 'el_GR'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+    <script is:inline define:vars={{ lang }}>
+      document.documentElement.classList.remove('no-js');
+      // Remember the visitor's language: if they chose English before and land on a
+      // Greek page from outside the site, take them to the English version.
+      try {
+        var saved = localStorage.getItem('cbc-lang');
+        var fromOutside = !document.referrer || new URL(document.referrer).origin !== location.origin;
+        if (saved === 'en' && lang === 'el' && fromOutside) {
+          var link = document.querySelector('link[hreflang="en"]');
+          if (link) location.replace(link.href.replace(/^https?:\/\/[^/]+/, '') + location.search + location.hash);
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body data-lang={lang}>
+    <a class="skip-link" href="#main">{lang === 'el' ? 'Μετάβαση στο περιεχόμενο' : 'Skip to content'}</a>
+    <Header lang={lang} current={current} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <div class="toast" role="status" aria-live="polite" data-toast></div>
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  body { min-height: 100vh; display: flex; flex-direction: column; }
+  main { flex: 1; outline: none; }
+</style>

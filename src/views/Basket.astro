@@ -1,0 +1,180 @@
+---
+import Base from '../layouts/Base.astro';
+import ProductImage from '../components/ProductImage.astro';
+import Icon from '../components/Icon.astro';
+import { products } from '../data/products';
+import { site } from '../config/site';
+import { t, path } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+<Base lang={lang} title={t(lang, 'seo.basket.title')} description={t(lang, 'seo.basket.desc')} current="basket" noindex>
+  <div class="wrap basket" data-basket-page>
+    <h1 tabindex="-1">{t(lang, 'basket.title')}</h1>
+
+    <div class="empty" data-basket-empty>
+      <div class="empty-icon" aria-hidden="true"><Icon name="bag" size={40} /></div>
+      <p>{t(lang, 'basket.empty')}</p>
+      <a class="btn btn-primary" href={path(lang, '/shop/')}>{t(lang, 'basket.empty.cta')}</a>
+    </div>
+
+    <div class="filled" data-basket-filled hidden>
+      <div class="lines-col">
+        <ul class="lines" data-basket-lines aria-live="polite"></ul>
+        <div class="lines-actions">
+          <a class="link" href={path(lang, '/shop/')}>← {t(lang, 'basket.continue')}</a>
+          <button type="button" class="clear" data-clear><Icon name="trash" size={16} /> {t(lang, 'basket.clear')}</button>
+        </div>
+      </div>
+
+      <aside class="summary" aria-labelledby="summary-title">
+        <h2 id="summary-title" class="visually-hidden">{t(lang, 'modal.summary')}</h2>
+        <div class="sum-row"><span>{t(lang, 'basket.subtotal')}</span><span data-basket-subtotal></span></div>
+        <div class="sum-row total"><span>{t(lang, 'basket.total')}</span><span data-basket-subtotal></span></div>
+        <p class="sum-note">{t(lang, 'basket.shippingNote')}</p>
+
+        <div class="how">
+          <h3>{t(lang, 'basket.howTitle')}</h3>
+          <p>{t(lang, 'basket.howText')}</p>
+        </div>
+
+        <p class="error-text" data-order-blocked hidden role="alert">{t(lang, 'basket.fixFirst')}</p>
+        <div class="order-btns">
+          <button type="button" class="btn btn-insta btn-block" data-order="instagram"><Icon name="instagram" size={20} /> {t(lang, 'basket.orderInstagram')}</button>
+          <button type="button" class="btn btn-dark btn-block" data-order="email"><Icon name="mail" size={20} /> {t(lang, 'basket.orderEmail')}</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  {products.map((p) => (
+    <template data-thumb-for={p.id}><ProductImage product={p} alt="" /></template>
+  ))}
+
+  <dialog class="order-dialog" data-order-dialog aria-labelledby="order-dialog-title">
+    <div class="dialog-inner">
+      <button type="button" class="dialog-x" data-close aria-label={t(lang, 'modal.close')}><Icon name="close" /></button>
+
+      <div data-panel="instagram">
+        <h2 id="order-dialog-title" class="dialog-title"><Icon name="instagram" size={26} /> {t(lang, 'modal.instagram.title')}</h2>
+        <p>{t(lang, 'modal.instagram.text')}</p>
+        <ol class="steps">
+          <li>{t(lang, 'modal.instagram.step1')}</li>
+          <li>{t(lang, 'modal.instagram.step2')}</li>
+          <li>{t(lang, 'modal.instagram.step3')}</li>
+        </ol>
+      </div>
+      <div data-panel="email" hidden>
+        <h2 class="dialog-title"><Icon name="mail" size={26} /> {t(lang, 'modal.email.title')}</h2>
+        <p>{t(lang, 'modal.email.text')}</p>
+        <p class="muted small">{t(lang, 'modal.email.fallback')} <a class="link" href={`mailto:${site.email}`}>{site.email}</a>.</p>
+      </div>
+
+      <label class="summary-label" for="order-text">{t(lang, 'modal.summary')}</label>
+      <textarea id="order-text" class="order-text" data-order-text readonly rows="10"></textarea>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-soft" data-copy><Icon name="copy" size={18} /> {t(lang, 'modal.copy')}</button>
+        <div data-panel="instagram">
+          <button type="button" class="btn btn-insta" data-copy-open><Icon name="instagram" size={18} /> {t(lang, 'modal.instagram.copyOpen')}</button>
+        </div>
+        <div data-panel="email" hidden>
+          <a class="btn btn-dark" data-email-link href={`mailto:${site.email}`}><Icon name="mail" size={18} /> {t(lang, 'modal.email.retry')}</a>
+        </div>
+      </div>
+      <p class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+      <p class="blocked" data-popup-blocked hidden>
+        {t(lang, 'modal.instagram.blocked')} <a class="link" href={site.instagramUrl} target="_blank" rel="noopener">{site.instagramHandle}</a>
+      </p>
+
+      <div class="dialog-note">
+        <p data-panel="instagram">{t(lang, 'modal.instagram.note')}</p>
+        <p data-panel="email" hidden>{t(lang, 'modal.email.note')}</p>
+        <p>{t(lang, 'modal.keepBasket')}</p>
+      </div>
+    </div>
+  </dialog>
+</Base>
+
+<style>
+  .basket { padding-block: clamp(32px, 6vw, 64px) clamp(64px, 10vw, 120px); }
+  h1 { outline: none; }
+  .empty { text-align: center; padding: 56px 20px; background: var(--cream-soft); border-radius: var(--radius-lg); }
+  .empty[hidden] { display: none; }
+  .empty-icon { display: inline-grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; background: var(--pink); margin-bottom: 16px; }
+  .empty p { font-size: 1.1rem; max-width: 420px; margin: 0 auto 24px; }
+  .filled { display: grid; grid-template-columns: 1fr 380px; gap: 40px; align-items: start; }
+  .filled[hidden] { display: none; }
+  .lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .lines :global(.line) {
+    display: grid; grid-template-columns: 96px 1fr auto; grid-template-areas: 'thumb info total' 'thumb controls controls';
+    gap: 8px 18px; align-items: start;
+    background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px;
+  }
+  .lines :global(.line.is-unavailable) { border-color: #e6b8b5; background: #fff8f7; }
+  .lines :global(.line-thumb) { grid-area: thumb; width: 96px; height: 96px; border-radius: var(--radius-sm); overflow: hidden; display: block; }
+  .lines :global(.line-info) { grid-area: info; min-width: 0; }
+  .lines :global(.line-name) { font-family: var(--font-display); font-size: 1.2rem; text-decoration: none; font-weight: 500; }
+  .lines :global(.line-name:hover) { color: var(--gold-deep); }
+  .lines :global(.line-opts) { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.85rem; color: var(--ink-soft); margin-top: 2px; }
+  .lines :global(.line-unit) { font-size: 0.85rem; color: var(--ink-soft); }
+  .lines :global(.line-warn) { color: var(--danger); font-weight: 700; font-size: 0.85rem; margin: 4px 0 0; }
+  .lines :global(.line-controls) { grid-area: controls; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .lines :global(.line-remove) { border: 0; background: none; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: 0.88rem; font-weight: 600; padding: 8px 4px; }
+  .lines :global(.line-remove:hover) { color: var(--danger); }
+  .lines :global(.line-total) { grid-area: total; font-weight: 800; font-size: 1.05rem; white-space: nowrap; }
+  .lines-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+  .clear { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--ink-soft); cursor: pointer; font-weight: 600; padding: 8px 0; }
+  .clear:hover { color: var(--danger); }
+
+  .summary { position: sticky; top: 100px; background: var(--cream-soft); border-radius: var(--radius-lg); padding: 26px; display: grid; gap: 10px; }
+  .sum-row { display: flex; justify-content: space-between; gap: 12px; }
+  .sum-row.total { font-weight: 800; font-size: 1.15rem; padding-top: 10px; border-top: 1px solid var(--line); }
+  .sum-note { font-size: 0.82rem; color: var(--ink-soft); margin: 0; }
+  .how { background: var(--white); border-radius: var(--radius); padding: 16px 18px; margin: 8px 0; }
+  .how h3 { font-size: 1.1rem; margin-bottom: 4px; }
+  .how p { font-size: 0.88rem; color: var(--ink-soft); margin: 0; }
+  .order-btns { display: grid; gap: 10px; }
+
+  .order-dialog {
+    width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);
+    padding: 0; border: 0; border-radius: var(--radius-lg); background: var(--ivory); color: var(--ink);
+    box-shadow: 0 30px 80px -20px rgb(74 58 44 / 0.45);
+  }
+  .order-dialog::backdrop { background: rgb(74 58 44 / 0.4); backdrop-filter: blur(3px); }
+  .order-dialog[open] { animation: pop 0.3s var(--ease); }
+  @keyframes pop { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+  .dialog-inner { position: relative; padding: 28px clamp(18px, 5vw, 32px); }
+  .dialog-x { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+  .dialog-x:hover { background: var(--cream); }
+  .dialog-title { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; padding-right: 40px; }
+  .steps { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 4px; font-weight: 600; }
+  .small { font-size: 0.9rem; }
+  .summary-label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; }
+  .order-text {
+    width: 100%; min-height: 200px; resize: vertical; padding: 14px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--line); background: var(--white); font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 0.82rem; line-height: 1.5;
+  }
+  .dialog-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .dialog-actions > div[hidden] { display: none; }
+  .copy-status { font-weight: 700; color: var(--mint-deep); margin: 10px 0 0; min-height: 1.4em; }
+  .copy-status:global(.is-error) { color: var(--danger); }
+  .blocked { background: var(--butter); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.9rem; }
+  .dialog-note { margin-top: 12px; padding: 14px 16px; background: var(--lavender); border-radius: var(--radius); font-size: 0.86rem; }
+  .dialog-note p { margin: 0; }
+  .dialog-note p + p { margin-top: 6px; }
+  [data-panel][hidden] { display: none; }
+
+  @media (max-width: 920px) {
+    .filled { grid-template-columns: 1fr; }
+    .summary { position: static; }
+  }
+  @media (max-width: 520px) {
+    .lines :global(.line) { grid-template-columns: 72px 1fr; grid-template-areas: 'thumb info' 'controls controls' 'total total'; }
+    .lines :global(.line-thumb) { width: 72px; height: 72px; }
+    .lines :global(.line-total) { text-align: right; }
+    .dialog-actions .btn, .dialog-actions > div, .dialog-actions > div .btn { width: 100%; }
+  }
+</style>

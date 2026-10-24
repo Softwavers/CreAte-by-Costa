@@ -1,0 +1,79 @@
+---
+import type { Product } from '../data/products';
+import { categories } from '../data/categories';
+import { t, path, formatPrice } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+import ProductImage from './ProductImage.astro';
+import StockBadge from './StockBadge.astro';
+import AddToOrder from './AddToOrder.astro';
+
+interface Props { product: Product; lang: Lang; order?: number; headingLevel?: 'h2' | 'h3' }
+const { product, lang, order = 0, headingLevel: H = 'h3' } = Astro.props;
+const href = path(lang, `/shop/${product.id}/`);
+const name = product.name[lang];
+const hasExtras = product.options?.some((o) => o.values.some((v) => v.priceDelta));
+const variationsText = product.options?.map((o) => o.values.map((v) => v.label[lang]).join(' · ')).join(' / ');
+const isNew = product.categories.includes('new');
+const catName = (id: string) => categories.find((c) => c.id === id)?.name[lang];
+---
+<article
+  class:list={['card', { 'is-sold-out': product.availability === 'sold_out' }]}
+  data-card
+  data-product-scope
+  data-categories={product.categories.join(' ')}
+  data-price={product.price}
+  data-added={product.added}
+  data-order={order}
+>
+  <a class="card-media" href={href} tabindex="-1" aria-hidden="true">
+    <ProductImage product={product} alt={name} />
+    {isNew && <span class="card-flag">{catName('new')}</span>}
+  </a>
+  <div class="card-body">
+    <div class="card-top">
+      <StockBadge status={product.availability} lang={lang} />
+      <span class="card-price">
+        {hasExtras && <span class="from">{t(lang, 'product.from')} </span>}
+        <span data-price-for={product.id}>{formatPrice(lang, product.price)}</span>
+      </span>
+    </div>
+    <H class="card-title"><a href={href}>{name}</a></H>
+    <p class="card-short">{product.short[lang]}</p>
+    {variationsText && <p class="card-variants">{variationsText}</p>}
+    <div class="card-actions">
+      <AddToOrder product={product} lang={lang} compact />
+      <a class="btn btn-ghost btn-small view-btn" href={href}>{t(lang, 'product.view')}</a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex; flex-direction: column;
+    background: var(--white); border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow-sm); border: 1px solid #f3e7d2;
+    transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+  .card-media { position: relative; display: block; aspect-ratio: 1; overflow: hidden; }
+  .card-media :global(svg), .card-media :global(img) { transition: transform 0.7s var(--ease); }
+  .card:hover .card-media :global(svg), .card:hover .card-media :global(img) { transform: scale(1.04); }
+  .is-sold-out .card-media { filter: grayscale(0.45); opacity: 0.85; }
+  .card-flag {
+    position: absolute; top: 14px; left: 14px;
+    background: var(--white); color: var(--mint-deep); font-size: 0.75rem; font-weight: 800;
+    padding: 0.35em 0.8em; border-radius: 999px; box-shadow: var(--shadow-sm);
+  }
+  .card-body { display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 20px; flex: 1; }
+  .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .card-price { font-weight: 800; font-size: 1.05rem; white-space: nowrap; }
+  .from { font-weight: 600; font-size: 0.8rem; color: var(--ink-soft); }
+  .card-title { font-size: 1.3rem; margin: 6px 0 0; }
+  .card-title a { text-decoration: none; }
+  .card-title a:hover { color: var(--gold-deep); }
+  .card-short { color: var(--ink-soft); font-size: 0.92rem; margin: 0; }
+  .card-variants { font-size: 0.8rem; font-weight: 700; color: var(--lavender-deep); margin: 0; }
+  .card-actions { margin-top: auto; padding-top: 12px; display: grid; gap: 8px; }
+  .view-btn { width: 100%; }
+  @media (max-width: 560px) { .card-media { aspect-ratio: 4 / 3; } }
+</style>

@@ -1,0 +1,177 @@
+---
+import Base from '../layouts/Base.astro';
+import ProductImage from '../components/ProductImage.astro';
+import ProductCard from '../components/ProductCard.astro';
+import StockBadge from '../components/StockBadge.astro';
+import AddToOrder from '../components/AddToOrder.astro';
+import Icon from '../components/Icon.astro';
+import { products, type Product } from '../data/products';
+import { categories } from '../data/categories';
+import { site } from '../config/site';
+import { t, path, asset, formatPrice } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props { lang: Lang; product: Product }
+const { lang, product } = Astro.props;
+const name = product.name[lang];
+const slides = product.images.length ? product.images.map((_, i) => i) : [0];
+const hasExtras = product.options?.some((o) => o.values.some((v) => v.priceDelta));
+const details = [
+  ['product.wax', product.wax],
+  ['product.dimensions', product.dimensions],
+  ['product.burnTime', product.burnTime],
+  ['product.weight', product.weight],
+].filter(([, v]) => v) as [Parameters<typeof t>[1], { el: string; en: string }][];
+const related = products
+  .filter((p) => p.id !== product.id && p.availability !== 'sold_out' && p.categories.some((c) => product.categories.includes(c)))
+  .slice(0, 3);
+const cats = product.categories.map((id) => categories.find((c) => c.id === id)).filter(Boolean);
+const care = ['product.care.1', 'product.care.2', 'product.care.3', 'product.care.4', 'product.care.5'] as const;
+
+const pageUrl = new URL(path(lang, `/shop/${product.id}/`), Astro.site).toString();
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name,
+  description: product.description[lang],
+  sku: product.id,
+  brand: { '@type': 'Brand', name: site.brandName },
+  ...(product.images.length ? { image: product.images.map((src) => new URL(asset(src), Astro.site).toString()) } : {}),
+  offers: {
+    '@type': 'Offer',
+    url: pageUrl,
+    priceCurrency: 'EUR',
+    price: product.price.toFixed(2),
+    availability: product.availability === 'sold_out' ? 'https://schema.org/OutOfStock'
+      : product.availability === 'made_to_order' ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock',
+  },
+};
+---
+<Base
+  lang={lang}
+  title={`${name} · ${site.brandName}`}
+  description={product.short[lang]}
+  current="shop"
+  type="product"
+  image={product.images[0]}
+  jsonLd={jsonLd}
+>
+  <div class="wrap product" data-product-scope>
+    <a class="back" href={path(lang, '/shop/')}><Icon name="back" size={18} /> {t(lang, 'product.back')}</a>
+
+    <div class="product-grid">
+      <div class="gallery" data-gallery>
+        <div class={`main-image bg-${product.art.bg}`}>
+          {slides.map((i) => (
+            <div class="slide" data-slide hidden={i !== 0}>
+              <ProductImage product={product} alt={`${name}${slides.length > 1 ? ` · ${t(lang, 'product.gallery')} ${i + 1}` : ''}`} index={i} eager={i === 0} />
+            </div>
+          ))}
+        </div>
+        {slides.length > 1 && (
+          <div class="thumbs">
+            {slides.map((i) => (
+              <button type="button" class="thumb" data-thumb aria-current={i === 0 ? 'true' : 'false'} aria-label={`${t(lang, 'product.gallery')} ${i + 1}`}>
+                <ProductImage product={product} alt="" index={i} />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div class="info">
+        <div class="cats">
+          {cats.map((c) => <a class={`cat bg-${c!.color}`} href={`${path(lang, '/shop/')}?category=${c!.id}`}>{c!.name[lang]}</a>)}
+        </div>
+        <h1>{name}</h1>
+        <div class="price-row">
+          <span class="price">
+            {hasExtras && <span class="from">{t(lang, 'product.from')} </span>}
+            <span data-price-for={product.id}>{formatPrice(lang, product.price)}</span>
+          </span>
+          <StockBadge status={product.availability} lang={lang} />
+        </div>
+        <p class="description">{product.description[lang]}</p>
+
+        {product.notes && (
+          <div class="notes">
+            <h2 class="mini-title">{t(lang, 'product.notes')}</h2>
+            <p>{product.notes[lang]}</p>
+          </div>
+        )}
+
+        <div class="buy">
+          <AddToOrder product={product} lang={lang} withQty />
+        </div>
+
+        {details.length > 0 && (
+          <div class="details">
+            <h2 class="mini-title">{t(lang, 'product.details')}</h2>
+            <dl>
+              {details.map(([key, value]) => (<><dt>{t(lang, key)}</dt><dd>{value[lang]}</dd></>))}
+            </dl>
+          </div>
+        )}
+
+        <details class="care">
+          <summary><Icon name="leaf" size={18} /> {t(lang, 'product.care.title')}</summary>
+          <ul>{care.map((k) => <li>{t(lang, k)}</li>)}</ul>
+        </details>
+
+        <button type="button" class="share" data-share><Icon name="share" size={18} /> {t(lang, 'product.share')}</button>
+      </div>
+    </div>
+  </div>
+
+  {related.length > 0 && (
+    <section class="section related bg-cream">
+      <div class="wrap">
+        <div class="section-head"><h2>{t(lang, 'product.related')}</h2></div>
+        <div class="related-grid">
+          {related.map((p) => <ProductCard product={p} lang={lang} />)}
+        </div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .product { padding-block: 24px clamp(56px, 8vw, 96px); }
+  .back { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-weight: 600; color: var(--ink-soft); margin-bottom: 20px; }
+  .back:hover { color: var(--ink); }
+  .product-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .gallery { position: sticky; top: 100px; }
+  .main-image { aspect-ratio: 1; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
+  .slide { width: 100%; height: 100%; }
+  .thumbs { display: flex; gap: 10px; margin-top: 12px; }
+  .thumb { width: 76px; height: 76px; padding: 0; border-radius: var(--radius-sm); overflow: hidden; border: 2px solid transparent; cursor: pointer; background: none; }
+  .thumb[aria-current='true'] { border-color: var(--gold); }
+  .cats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .cat { padding: 0.3em 0.9em; border-radius: 999px; font-size: 0.8rem; font-weight: 700; text-decoration: none; }
+  .info h1 { font-size: clamp(2rem, 4.5vw, 3rem); }
+  .price-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .price { font-size: 1.6rem; font-weight: 800; }
+  .from { font-size: 0.95rem; font-weight: 600; color: var(--ink-soft); }
+  .description { font-size: 1.06rem; color: var(--ink-soft); }
+  .mini-title { font-family: var(--font-body); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 6px; }
+  .notes { background: var(--cream-soft); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; }
+  .notes p { margin: 0; font-family: var(--font-display); font-style: italic; font-size: 1.1rem; }
+  .buy { padding: 22px; background: var(--white); border-radius: var(--radius); border: 1px solid var(--line); margin-bottom: 24px; }
+  .details dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 20px; margin: 0 0 20px; }
+  .details dt { font-weight: 700; }
+  .details dd { margin: 0; color: var(--ink-soft); }
+  .care { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 14px 0; margin-bottom: 18px; }
+  .care summary { display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; list-style: none; }
+  .care summary::-webkit-details-marker { display: none; }
+  .care summary::after { content: '+'; margin-left: auto; font-size: 1.3rem; transition: transform 0.2s; }
+  .care[open] summary::after { transform: rotate(45deg); }
+  .care ul { margin: 12px 0 0; padding-left: 20px; color: var(--ink-soft); display: grid; gap: 4px; }
+  .share { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; font-weight: 700; cursor: pointer; padding: 8px 0; color: var(--ink-soft); }
+  .share:hover { color: var(--ink); }
+  .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  @media (max-width: 860px) {
+    .product-grid { grid-template-columns: 1fr; }
+    .gallery { position: static; }
+    .related-grid { grid-template-columns: 1fr; max-width: 420px; margin-inline: auto; }
+  }
+</style>

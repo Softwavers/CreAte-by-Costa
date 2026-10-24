@@ -1,0 +1,24 @@
+---
+// Small line icons used across the site.
+interface Props { name: 'bag' | 'instagram' | 'mail' | 'menu' | 'close' | 'arrow' | 'heart' | 'flame' | 'gift' | 'sparkle' | 'leaf' | 'copy' | 'share' | 'trash' | 'check' | 'back'; size?: number; class?: string }
+const { name, size = 22, class: cls = '' } = Astro.props;
+const paths: Record<Props['name'], string> = {
+  bag: '<path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/>',
+  instagram: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none"/>',
+  mail: '<rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M4 7.5l8 5.5 8-5.5"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h10"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  flame: '<path d="M12 21c-3.3 0-6-2.4-6-5.6 0-3.6 3-5.4 4-9.4 2.6 1.8 3 4 3 5.4 1-.6 1.8-1.8 2-3 1.6 1.6 3 4 3 7 0 3.2-2.7 5.6-6 5.6z"/>',
+  gift: '<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3 9h18v3H3zM12 9v11M12 9c-1.5-3-5-3.5-5-1.5S10 9 12 9zm0 0c1.5-3 5-3.5 5-1.5S14 9 12 9z"/>',
+  sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
+  leaf: '<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19l7-7"/>',
+  copy: '<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  share: '<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/>',
+  trash: '<path d="M4 7h16M9 7V4.5h6V7M6 7l1 13h10l1-13"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+};
+---
+<svg class={`icon ${cls}`} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={paths[name]} />

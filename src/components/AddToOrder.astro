@@ -1,0 +1,52 @@
+---
+// "Add to Order" form: option pickers, optional quantity, and the button.
+import type { Product } from '../data/products';
+import { t } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props { product: Product; lang: Lang; withQty?: boolean; compact?: boolean }
+const { product, lang, withQty = false, compact = false } = Astro.props;
+const soldOut = product.availability === 'sold_out';
+const max = product.maxQty ?? 10;
+const uid = `${product.id}-${compact ? 'c' : 'p'}`;
+---
+<form class:list={['add-form', { compact }]} data-add-form data-product={product.id} novalidate>
+  {product.options?.map((opt) => (
+    <div class="field">
+      <label for={`${uid}-${opt.id}`} class:list={[{ 'visually-hidden': compact }]}>{opt.label[lang]}</label>
+      <select class="select" id={`${uid}-${opt.id}`} data-option={opt.id} required={opt.required} disabled={soldOut}>
+        <option value="">{compact ? `${opt.label[lang]}: ${t(lang, 'product.choose')}` : t(lang, 'product.choose')}</option>
+        {opt.values.map((v) => (
+          <option value={v.id}>{v.label[lang]}{v.priceDelta ? ` (+${v.priceDelta.toLocaleString(lang === 'el' ? 'el-GR' : 'en-GB', { style: 'currency', currency: 'EUR' })})` : ''}</option>
+        ))}
+      </select>
+    </div>
+  ))}
+  <div class="add-row">
+    {withQty && !soldOut && (
+      <div class="field qty-field">
+        <span class="visually-hidden" id={`${uid}-qty-label`}>{t(lang, 'product.quantity')}</span>
+        <div class="qty" data-qty>
+          <button type="button" data-step="-1" aria-label={t(lang, 'product.decrease')}>−</button>
+          <input type="number" name="qty" inputmode="numeric" min="1" max={max} value="1" aria-labelledby={`${uid}-qty-label`} />
+          <button type="button" data-step="1" aria-label={t(lang, 'product.increase')}>+</button>
+        </div>
+      </div>
+    )}
+    <button type="submit" class:list={['btn', soldOut ? 'btn-soft' : 'btn-primary', { 'btn-small': compact }, 'add-btn']} disabled={soldOut}>
+      {soldOut ? t(lang, 'stock.sold_out') : <><Icon name="bag" size={18} /> {t(lang, 'product.add')}</>}
+    </button>
+  </div>
+  <p class="error-text" data-form-error role="alert"></p>
+</form>
+
+<style>
+  .add-form { display: grid; gap: 12px; }
+  .add-form.compact { gap: 8px; }
+  .compact .select { min-height: 40px; font-size: 0.88rem; padding-block: 0.45em; }
+  .add-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .add-btn { flex: 1 1 auto; }
+  .compact .add-btn { width: 100%; }
+  .qty-field { flex: 0 0 auto; }
+</style>

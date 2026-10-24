@@ -1,0 +1,64 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { site } from '../config/site';
+import { t, path } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <Logo class="footer-logo" />
+      <p>{t(lang, 'footer.tagline')}</p>
+      <p class="no-pay">{t(lang, 'footer.noPayments')}</p>
+    </div>
+    <nav aria-label={t(lang, 'footer.explore')}>
+      <h2 class="footer-title">{t(lang, 'footer.explore')}</h2>
+      <ul>
+        <li><a href={path(lang, '/')}>{t(lang, 'nav.home')}</a></li>
+        <li><a href={path(lang, '/shop/')}>{t(lang, 'nav.shop')}</a></li>
+        <li><a href={path(lang, '/our-story/')}>{t(lang, 'nav.story')}</a></li>
+        <li><a href={path(lang, '/contact/')}>{t(lang, 'nav.contact')}</a></li>
+        <li><a href={path(lang, '/basket/')}>{t(lang, 'nav.basket')}</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2 class="footer-title">{t(lang, 'footer.follow')}</h2>
+      <ul>
+        <li><a class="with-icon" href={site.instagramUrl} target="_blank" rel="noopener"><Icon name="instagram" size={18} /> {site.instagramHandle}</a></li>
+        <li><a class="with-icon" href={`mailto:${site.email}`}><Icon name="mail" size={18} /> {site.email}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© {year} {site.brandName}</span>
+    <span>{t(lang, 'footer.rights')} ♡</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--cream-soft); border-top: 1px solid var(--line); margin-top: auto; }
+  .footer-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px;
+    padding-block: 56px 40px;
+  }
+  .footer-brand :global(.footer-logo) { width: 130px; margin-bottom: 12px; }
+  .footer-brand p { color: var(--ink-soft); max-width: 300px; }
+  .no-pay { font-size: 0.85rem; }
+  .footer-title { font-family: var(--font-body); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  a { text-decoration: none; color: var(--ink); overflow-wrap: anywhere; }
+  a:hover { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  .with-icon { display: inline-flex; align-items: center; gap: 8px; }
+  .footer-bottom {
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    padding-block: 20px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--ink-soft);
+  }
+  @media (max-width: 760px) {
+    .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  }
+</style>

@@ -1,0 +1,85 @@
+---
+import Base from '../layouts/Base.astro';
+import CandleArt from '../components/CandleArt.astro';
+import Icon from '../components/Icon.astro';
+import { products } from '../data/products';
+import { t, path, asset } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+/*
+ * To use real photos, put them in public/images/about/ and set `photo`
+ * below, e.g. photo: '/images/about/workshop.jpg'.
+ */
+const sections = [
+  { key: 'inspiration', icon: 'sparkle', color: 'pink', photo: '', art: products[1].art },
+  { key: 'maker', icon: 'heart', color: 'lavender', photo: '', art: products[2].art },
+  { key: 'process', icon: 'flame', color: 'butter', photo: '', art: products[0].art },
+  { key: 'philosophy', icon: 'leaf', color: 'mint', photo: '', art: products[7].art },
+] as const;
+/* Workshop photos for the gallery at the bottom (public/images/about/). */
+const workshopPhotos: string[] = [];
+---
+<Base lang={lang} title={t(lang, 'seo.story.title')} description={t(lang, 'seo.story.desc')} current="story">
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="sparkle" style="top:28%;left:14%;font-size:18px" aria-hidden="true">✦</span>
+      <span class="sparkle" style="top:60%;right:12%;font-size:14px;animation-delay:1.4s" aria-hidden="true">✦</span>
+      <p class="eyebrow">CreAte by Costa</p>
+      <h1>{t(lang, 'story.title')}</h1>
+      <p>{t(lang, 'story.intro')}</p>
+    </div>
+  </section>
+
+  <div class="wrap chapters">
+    {sections.map((s, i) => (
+      <section class:list={['chapter', 'reveal', { flip: i % 2 === 1 }]}>
+        <div class={`chapter-media bg-${s.color}`}>
+          {s.photo ? <img src={asset(s.photo)} alt="" loading="lazy" width="800" height="1000" /> : <CandleArt art={s.art} label="" flame={i % 2 === 0} />}
+        </div>
+        <div class="chapter-text">
+          <span class={`chapter-icon bg-${s.color}`} aria-hidden="true"><Icon name={s.icon} /></span>
+          <h2>{t(lang, `story.${s.key}.title`)}</h2>
+          <p>{t(lang, `story.${s.key}.text`)}</p>
+        </div>
+      </section>
+    ))}
+  </div>
+
+  {workshopPhotos.length > 0 && (
+    <section class="section bg-cream">
+      <div class="wrap">
+        <div class="section-head"><h2>{t(lang, 'story.photos.title')}</h2></div>
+        <div class="photos">
+          {workshopPhotos.map((src) => <img src={asset(src)} alt="" loading="lazy" width="600" height="600" />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section cta">
+    <div class="wrap">
+      <a class="btn btn-primary" href={path(lang, '/shop/')}>{t(lang, 'story.cta')} <Icon name="arrow" size={18} /></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .chapters { display: grid; gap: clamp(48px, 8vw, 96px); padding-bottom: 24px; }
+  .chapter { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(28px, 6vw, 80px); align-items: center; }
+  .chapter.flip .chapter-media { order: 2; }
+  .chapter-media { aspect-ratio: 4 / 5; max-width: 420px; width: 100%; justify-self: center; border-radius: 200px 200px var(--radius-lg) var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
+  .chapter-media img { width: 100%; height: 100%; object-fit: cover; }
+  .chapter-icon { display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 18px; margin-bottom: 16px; transform: rotate(-4deg); }
+  .chapter-text p { font-size: 1.08rem; color: var(--ink-soft); }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .photos img { border-radius: var(--radius); aspect-ratio: 1; object-fit: cover; }
+  .cta { text-align: center; }
+  @media (max-width: 760px) {
+    .chapter { grid-template-columns: 1fr; }
+    .chapter.flip .chapter-media { order: 0; }
+    .chapter-media { max-width: 300px; }
+  }
+</style>

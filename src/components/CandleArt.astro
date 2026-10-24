@@ -1,0 +1,93 @@
+---
+// A soft illustrated candle, shown when a product has no photo yet.
+import type { Product } from '../data/products';
+
+interface Props { art: Product['art']; label: string; class?: string; flame?: boolean }
+const { art, label, class: cls = '', flame = true } = Astro.props;
+const bgMap = { pink: '#f8dde1', lavender: '#e8e0f4', butter: '#fcefc4', blue: '#dceaf5', peach: '#fbe3d3', mint: '#ddf0e3', beige: '#efe5d6' };
+const bg = bgMap[art.bg];
+const ink = '#4a3a2c';
+
+// Where the wick sits for each shape.
+const wickTop: Record<Product['art']['shape'], [number, number]> = {
+  jar: [200, 176], pillar: [200, 128], tin: [200, 232], bubble: [200, 150], heart: [200, 190],
+};
+const [wx, wy] = wickTop[art.shape];
+---
+<svg class={`candle-art ${cls}`} viewBox="0 0 400 400" role="img" aria-label={label} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <rect width="400" height="400" fill={bg} />
+  <circle cx="320" cy="80" r="70" fill="#fff" opacity="0.35" />
+  <circle cx="70" cy="330" r="50" fill="#fff" opacity="0.3" />
+  <g fill={art.accent} opacity="0.75">
+    <path d="M70 90l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
+    <path d="M330 250l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" />
+    <circle cx="96" cy="200" r="3" /><circle cx="300" cy="150" r="2.5" /><circle cx="120" cy="300" r="2" />
+  </g>
+  <ellipse cx="200" cy="348" rx="110" ry="12" fill={ink} opacity="0.08" />
+
+  {art.shape === 'jar' && (
+    <g>
+      <rect x="118" y="168" width="164" height="178" rx="30" fill="#fff" opacity="0.65" stroke={ink} stroke-opacity="0.18" stroke-width="2" />
+      <rect x="130" y="196" width="140" height="140" rx="22" fill={art.wax} />
+      <ellipse cx="200" cy="198" rx="70" ry="10" fill={art.accent} opacity="0.45" />
+      <rect x="150" y="248" width="100" height="54" rx="10" fill="#fffaf1" />
+      <path d="M170 276h60" stroke={art.accent} stroke-width="3" stroke-linecap="round" />
+      <path d="M186 288h28" stroke={art.accent} stroke-width="2" stroke-linecap="round" opacity="0.7" />
+      <path d="M200 262l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill={art.accent} />
+      <rect x="128" y="178" width="12" height="120" rx="6" fill="#fff" opacity="0.6" />
+    </g>
+  )}
+  {art.shape === 'pillar' && (
+    <g>
+      <rect x="148" y="130" width="104" height="214" rx="16" fill={art.wax} />
+      <path d="M148 146c0-9 7-16 16-16h72c9 0 16 7 16 16v10c-8 0-8 22-16 22s-6-14-14-14-8 30-18 30-8-24-18-24-8 14-16 14-8-18-16-18-6 10-6 10z" fill={art.accent} opacity="0.55" />
+      <rect x="160" y="190" width="10" height="130" rx="5" fill="#fff" opacity="0.4" />
+      <path d="M176 260c8-10 40-10 48 0" stroke="#fff" stroke-width="3" fill="none" opacity="0.7" stroke-linecap="round" />
+    </g>
+  )}
+  {art.shape === 'tin' && (
+    <g>
+      <ellipse cx="270" cy="250" rx="62" ry="62" fill={art.accent} opacity="0.5" transform="rotate(-12 270 250)" />
+      <ellipse cx="270" cy="250" rx="48" ry="48" fill="none" stroke="#fff" stroke-width="3" opacity="0.6" />
+      <rect x="110" y="232" width="170" height="110" rx="22" fill="#fff" opacity="0.75" stroke={ink} stroke-opacity="0.15" stroke-width="2" />
+      <rect x="120" y="244" width="150" height="88" rx="16" fill={art.wax} />
+      <ellipse cx="195" cy="245" rx="72" ry="8" fill={art.accent} opacity="0.5" />
+      <path d="M150 300h90" stroke={art.accent} stroke-width="3" stroke-linecap="round" />
+    </g>
+  )}
+  {art.shape === 'bubble' && (
+    <g>
+      {[0, 1, 2].map((r) => [0, 1, 2].map((c) => (
+        <circle cx={152 + c * 48} cy={196 + r * 48} r="30" fill={art.wax} stroke={art.accent} stroke-width="2" />
+      )))}
+      {[0, 1, 2].map((r) => [0, 1, 2].map((c) => (
+        <circle cx={144 + c * 48} cy={186 + r * 48} r="8" fill="#fff" opacity="0.6" />
+      )))}
+    </g>
+  )}
+  {art.shape === 'heart' && (
+    <g>
+      <path d="M200 336c-10-8-104-62-104-128 0-34 26-56 54-56 22 0 40 12 50 30 10-18 28-30 50-30 28 0 54 22 54 56 0 66-94 120-104 128z" fill={art.wax} stroke={art.accent} stroke-width="3" />
+      <path d="M134 200c0-18 12-30 28-30" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.6" />
+    </g>
+  )}
+
+  <path d={`M${wx} ${wy} v-16`} stroke={ink} stroke-width="3" stroke-linecap="round" />
+  {flame && (
+    <g class="flame">
+      <ellipse cx={wx} cy={wy - 34} rx="26" ry="34" fill="#ffe9a8" opacity="0.45" />
+      <path d={`M${wx} ${wy - 64}c10 14 16 22 16 32a16 16 0 0 1-32 0c0-10 6-18 16-32z`} fill="#f6c25b" />
+      <path d={`M${wx} ${wy - 44}c5 7 8 11 8 16a8 8 0 0 1-16 0c0-5 3-9 8-16z`} fill="#fff3cf" />
+    </g>
+  )}
+</svg>
+
+<style>
+  .candle-art { width: 100%; height: 100%; display: block; }
+  .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flicker 3s ease-in-out infinite; }
+  @keyframes flicker {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    30% { transform: scale(1.04, 0.97) rotate(-2deg); }
+    60% { transform: scale(0.97, 1.03) rotate(1.5deg); }
+  }
+</style>

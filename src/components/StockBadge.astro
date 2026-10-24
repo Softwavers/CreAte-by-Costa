@@ -1,0 +1,8 @@
+---
+import type { Availability } from '../data/products';
+import { t } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+interface Props { status: Availability; lang: Lang }
+const { status, lang } = Astro.props;
+---
+<span class={`badge badge-${status}`}>{t(lang, `stock.${status}`)}</span>

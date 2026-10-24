@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import CandleArt from '../components/CandleArt.astro';
+import { products } from '../data/products';
+import { t, path } from '../i18n/utils';
+---
+<Base lang="el" title={t('el', 'seo.404.title')} description={t('el', '404.text')} noindex>
+  <section class="wrap nf">
+    <div class="nf-art"><CandleArt art={products[0].art} label="" flame={false} /></div>
+    <div lang="el">
+      <h1>{t('el', '404.title')}</h1>
+      <p>{t('el', '404.text')}</p>
+      <a class="btn btn-primary" href={path('el', '/')}>{t('el', '404.cta')}</a>
+    </div>
+    <div lang="en" class="nf-en">
+      <h2>{t('en', '404.title')}</h2>
+      <p>{t('en', '404.text')}</p>
+      <a class="btn btn-ghost" href={path('en', '/')}>{t('en', '404.cta')}</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { text-align: center; padding-block: 64px 96px; display: grid; gap: 24px; justify-items: center; }
+  .nf-art { width: 180px; aspect-ratio: 1; border-radius: 50%; overflow: hidden; }
+  .nf p { color: var(--ink-soft); max-width: 460px; margin-inline: auto; }
+  .nf-en { padding-top: 24px; border-top: 1px solid var(--line); }
+  .nf-en h2 { font-size: 1.5rem; }
+</style>

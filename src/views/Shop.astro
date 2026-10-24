@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { products } from '../data/products';
+import { categories, allCategoriesLabel } from '../data/categories';
+import { t, l } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+// Default order: featured first, then available before sold out, then newest.
+const ordered = [...products].sort((a, b) =>
+  Number(!!b.featured) - Number(!!a.featured)
+  || Number(a.availability === 'sold_out') - Number(b.availability === 'sold_out')
+  || b.added.localeCompare(a.added));
+---
+<Base lang={lang} title={t(lang, 'seo.shop.title')} description={t(lang, 'seo.shop.desc')} current="shop">
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="sparkle" style="top:30%;left:12%;font-size:18px" aria-hidden="true">✦</span>
+      <span class="sparkle" style="top:55%;right:14%;font-size:14px;animation-delay:1s" aria-hidden="true">✦</span>
+      <h1>{t(lang, 'shop.title')}</h1>
+      <p>{t(lang, 'shop.subtitle')}</p>
+    </div>
+  </section>
+
+  <section class="wrap shop" data-shop>
+    <div class="toolbar">
+      <div class="filters" role="group" aria-label={t(lang, 'shop.filter.label')}>
+        <button type="button" class="chip" data-filter="all" aria-pressed="true">{l(lang, allCategoriesLabel)}</button>
+        {categories.map((c) => (
+          <button type="button" class={`chip chip-${c.color}`} data-filter={c.id} aria-pressed="false">{c.name[lang]}</button>
+        ))}
+      </div>
+      <div class="toolbar-right">
+        <span class="count muted" data-shop-count aria-live="polite">{products.length} {t(lang, 'shop.count.many')}</span>
+        <label class="sort">
+          <span class="visually-hidden">{t(lang, 'shop.sort.label')}</span>
+          <select class="select" data-sort>
+            <option value="featured">{t(lang, 'shop.sort.featured')}</option>
+            <option value="newest">{t(lang, 'shop.sort.newest')}</option>
+            <option value="priceAsc">{t(lang, 'shop.sort.priceAsc')}</option>
+            <option value="priceDesc">{t(lang, 'shop.sort.priceDesc')}</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="grid" data-shop-grid>
+      {ordered.map((p, i) => <ProductCard product={p} lang={lang} order={i} headingLevel="h2" />)}
+    </div>
+    <p class="empty muted" data-shop-empty hidden>{t(lang, 'shop.empty')}</p>
+  </section>
+</Base>
+
+<style>
+  .shop { padding-bottom: clamp(64px, 10vw, 120px); }
+  .toolbar {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--line);
+  }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    min-height: 42px; padding: 0.5em 1.1em; border-radius: 999px;
+    border: 1.5px solid var(--line); background: var(--white); cursor: pointer;
+    font-weight: 700; font-size: 0.9rem; transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .chip:hover { border-color: var(--gold); transform: translateY(-1px); }
+  .chip[aria-pressed='true'] { background: var(--gold); border-color: var(--gold); }
+  .chip-pink[aria-pressed='true'] { background: var(--pink); border-color: #ecbcc5; }
+  .chip-mint[aria-pressed='true'] { background: var(--mint); border-color: #b5dcc1; }
+  .chip-lavender[aria-pressed='true'] { background: var(--lavender); border-color: #cbbde6; }
+  .chip-butter[aria-pressed='true'] { background: var(--butter); border-color: #ecd68f; }
+  .toolbar-right { display: flex; align-items: center; gap: 16px; }
+  .count { font-size: 0.9rem; font-weight: 600; white-space: nowrap; }
+  .sort .select { min-width: 220px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+  .grid > [hidden] { display: none; }
+  .empty { text-align: center; padding: 48px 0; }
+  @media (max-width: 640px) {
+    .filters { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(var(--gutter) * -1); padding: 2px var(--gutter) 6px; scrollbar-width: none; }
+    .filters::-webkit-scrollbar { display: none; }
+    .chip { flex-shrink: 0; }
+    .toolbar-right { width: 100%; justify-content: space-between; }
+    .sort .select { min-width: 0; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>

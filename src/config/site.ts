@@ -14,7 +14,7 @@ export const site = {
   instagramHandle: '@create_bycosta',
 
   /** Business email address. Orders and contact messages go here. */
-  email: 'YOUR_EMAIL@example.com',
+  email: 'Createbycosta@hotmail.com',
 
   /**
    * Optional: a free Formspree form ID (e.g. "xyzabcd") so the contact form
@@ -36,4 +36,13 @@ export const site = {
    * The section is hidden while this list is empty.
    */
   testimonials: [] as { quote: { el: string; en: string }; name: string }[],
+
+  /**
+   * Admin page (/admin/). Product changes made there are saved to this
+   * GitHub repository and branch, which then republishes the site.
+   */
+  admin: {
+    repo: 'Softwavers/CreAte-by-Costa',
+    branch: 'main',
+  },
 };

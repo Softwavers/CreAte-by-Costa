@@ -9,6 +9,11 @@
 
 export type PastelColor = 'pink' | 'lavender' | 'butter' | 'blue' | 'peach' | 'mint' | 'beige';
 
+/** The actual colour behind each pastel name (same as in global.css). */
+export const pastelHex: Record<PastelColor, string> = {
+  pink: '#f8dde1', lavender: '#e8e0f4', butter: '#fcefc4', blue: '#dceaf5', peach: '#fbe3d3', mint: '#ddf0e3', beige: '#efe5d6',
+};
+
 export interface Category {
   id: string;
   name: { el: string; en: string };

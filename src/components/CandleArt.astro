@@ -1,11 +1,11 @@
 ---
 // A soft illustrated candle, shown when a product has no photo yet.
 import type { Product } from '../data/products';
+import { pastelHex } from '../data/categories';
 
 interface Props { art: Product['art']; label: string; class?: string; flame?: boolean }
 const { art, label, class: cls = '', flame = true } = Astro.props;
-const bgMap = { pink: '#f8dde1', lavender: '#e8e0f4', butter: '#fcefc4', blue: '#dceaf5', peach: '#fbe3d3', mint: '#ddf0e3', beige: '#efe5d6' };
-const bg = bgMap[art.bg];
+const bg = pastelHex[art.bg];
 const ink = '#4a3a2c';
 
 // Where the wick sits for each shape.

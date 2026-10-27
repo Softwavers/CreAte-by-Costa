@@ -122,11 +122,14 @@ export class GitHub {
     }
   }
 
-  /** How the site rebuild for a commit is going (needs the token's "Actions: read" permission). */
+  /**
+   * How the site rebuild for a commit is going (needs the token's "Actions: read" permission).
+   * Only .github/workflows/deploy.yml counts, so other workflows can't report a false failure.
+   */
   async deployStatus(commitSha: string): Promise<DeployStatus> {
     try {
       const { workflow_runs: runs } = await this.request<{ workflow_runs: { status: string; conclusion: string | null }[] }>(
-        'GET', `/actions/runs?head_sha=${commitSha}&per_page=20`,
+        'GET', `/actions/workflows/deploy.yml/runs?head_sha=${commitSha}&per_page=20`,
       );
       if (!runs.length) return 'none';
       if (runs.some((r) => r.status !== 'completed')) return 'pending';

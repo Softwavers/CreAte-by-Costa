@@ -301,7 +301,7 @@ function photosSection(d: Product): string {
       ${d.images.map((src, i) => `
         <li class="photo">
           <img src="${esc(photoUrl(src))}" alt="">
-          ${i === 0 ? `<span class="photo-main">${s('edit.mainPhoto')}</span>` : ''}
+          ${i === 0 ? `<span class="photo-main">★ ${s('edit.mainPhoto')}</span>` : `<button type="button" class="photo-main photo-make-main" data-action="photo-main" data-index="${i}">${s('edit.makeMain')}</button>`}
           <div class="photo-actions">
             <button type="button" class="icon-btn" data-action="photo-left" data-index="${i}" aria-label="${s('edit.photoLeft')}" ${i === 0 ? 'disabled' : ''}>←</button>
             <button type="button" class="icon-btn" data-action="photo-right" data-index="${i}" aria-label="${s('edit.photoRight')}" ${i === d.images.length - 1 ? 'disabled' : ''}>→</button>
@@ -793,6 +793,11 @@ const actions: Record<string, (i: number, el: HTMLElement) => void> = {
     if (view.name !== 'edit') return;
     move(view.draft.images, i, i + 1);
     renderSection('photos', `[data-action="photo-right"][data-index="${i + 1}"]`);
+  },
+  'photo-main': (i) => {
+    if (view.name !== 'edit') return;
+    move(view.draft.images, i, 0);
+    renderSection('photos', '.photo-main');
   },
   'photo-remove': (i) => {
     if (view.name !== 'edit') return;

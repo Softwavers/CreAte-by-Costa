@@ -1,12 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
-import CandleArt from '../components/CandleArt.astro';
-import { products } from '../data/products';
+import Showcase from '../components/Showcase.astro';
 import { t, path } from '../i18n/utils';
 ---
 <Base lang="el" title={t('el', 'seo.404.title')} description={t('el', '404.text')} noindex>
   <section class="wrap nf">
-    <div class="nf-art"><CandleArt art={products[0].art} label="" flame={false} /></div>
+    <div class="nf-art"><Showcase index={0} flame={false} /></div>
     <div lang="el">
       <h1>{t('el', '404.title')}</h1>
       <p>{t('el', '404.text')}</p>

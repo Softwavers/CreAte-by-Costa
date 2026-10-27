@@ -85,9 +85,10 @@ const el = {
   'edit.featured': 'Εμφάνιση στην αρχική σελίδα',
 
   'edit.photos': 'Φωτογραφίες',
-  'edit.photosHint': 'Η πρώτη φωτογραφία είναι η κύρια. Οι φωτογραφίες μικραίνουν αυτόματα για να φορτώνει γρήγορα το κατάστημα.',
+  'edit.photosHint': 'Η κύρια φωτογραφία (★) εμφανίζεται στην κάρτα του προϊόντος στο κατάστημα και στην αρχική σελίδα. Πατήστε «Ορισμός ως κύρια» σε όποια φωτογραφία θέλετε. Οι φωτογραφίες μικραίνουν αυτόματα για να φορτώνει γρήγορα το κατάστημα.',
   'edit.addPhotos': 'Προσθήκη φωτογραφιών',
   'edit.mainPhoto': 'Κύρια',
+  'edit.makeMain': 'Ορισμός ως κύρια',
   'edit.photoLeft': 'Μετακίνηση αριστερά',
   'edit.photoRight': 'Μετακίνηση δεξιά',
   'edit.photoRemove': 'Αφαίρεση φωτογραφίας',
@@ -238,9 +239,10 @@ const en: Record<StringKey, string> = {
   'edit.featured': 'Show on the home page',
 
   'edit.photos': 'Photos',
-  'edit.photosHint': 'The first photo is the main one. Photos are shrunk automatically so the shop loads fast.',
+  'edit.photosHint': 'The main photo (★) is shown on the product card in the shop and on the home page. Press “Make main” on any photo to choose it. Photos are shrunk automatically so the shop loads fast.',
   'edit.addPhotos': 'Add photos',
   'edit.mainPhoto': 'Main',
+  'edit.makeMain': 'Make main',
   'edit.photoLeft': 'Move left',
   'edit.photoRight': 'Move right',
   'edit.photoRemove': 'Remove photo',

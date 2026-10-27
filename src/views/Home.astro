@@ -1,7 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import ProductCard from '../components/ProductCard.astro';
-import CandleArt from '../components/CandleArt.astro';
+import ProductImage from '../components/ProductImage.astro';
+import Showcase from '../components/Showcase.astro';
 import Icon from '../components/Icon.astro';
 import { products } from '../data/products';
 import { categories } from '../data/categories';
@@ -37,9 +38,9 @@ const galleryArt = products.slice(0, 6);
       </div>
       <div class="hero-visual" aria-hidden="true">
         <div class="hero-blob"></div>
-        <div class="hero-card hero-card-main"><CandleArt art={products[0].art} label="" /></div>
-        <div class="hero-card hero-card-2"><CandleArt art={products[1].art} label="" /></div>
-        <div class="hero-card hero-card-3"><CandleArt art={products[2].art} label="" /></div>
+        <div class="hero-card hero-card-main"><Showcase index={0} /></div>
+        <div class="hero-card hero-card-2"><Showcase index={1} /></div>
+        <div class="hero-card hero-card-3"><Showcase index={2} /></div>
         <span class="sparkle" style="top:6%;left:12%;font-size:22px">✦</span>
         <span class="sparkle" style="bottom:10%;right:4%;font-size:16px;animation-delay:1.2s">✦</span>
         <span class="sparkle" style="top:42%;right:-2%;font-size:12px;animation-delay:2s">✦</span>
@@ -67,7 +68,7 @@ const galleryArt = products.slice(0, 6);
   <section class="section story bg-cream">
     <div class="wrap story-grid">
       <div class="story-visual reveal" aria-hidden="true">
-        <div class="story-frame bg-peach"><CandleArt art={products[6].art} label="" /></div>
+        <div class="story-frame bg-peach"><Showcase index={3} /></div>
         <div class="story-note">♡ handmade</div>
       </div>
       <div class="reveal">
@@ -132,7 +133,7 @@ const galleryArt = products.slice(0, 6);
             ))
           : galleryArt.map((p) => (
               <a class="insta-tile reveal" href={site.instagramUrl} target="_blank" rel="noopener" aria-label={`${p.name[lang]} · Instagram`}>
-                <CandleArt art={p.art} label="" flame={false} />
+                <ProductImage product={p} alt="" />
               </a>
             ))}
       </div>

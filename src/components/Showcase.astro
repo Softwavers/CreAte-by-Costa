@@ -1,0 +1,24 @@
+---
+// A product picture used as decoration (home page hero, Our Story, 404):
+// the product's main photo, or its illustration until it has photos.
+// Products are picked by their place in the list and wrap around, so the
+// pages work however many products there are.
+import { products, type Product } from '../data/products';
+import CandleArt from './CandleArt.astro';
+import { asset } from '../i18n/utils';
+
+interface Props { index: number; flame?: boolean }
+const { index, flame = true } = Astro.props;
+const fallback: Product['art'] = { shape: 'jar', wax: '#FBEBC9', accent: '#DFB154', bg: 'butter' };
+const product = products.length ? products[index % products.length] : undefined;
+const src = product?.images[0];
+---
+{src ? (
+  <img class="showcase-img" src={asset(src)} alt="" loading="lazy" decoding="async" width="800" height="800" />
+) : (
+  <CandleArt art={product?.art ?? fallback} label="" flame={flame} />
+)}
+
+<style>
+  .showcase-img { width: 100%; height: 100%; object-fit: cover; }
+</style>

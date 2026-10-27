@@ -1,8 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import CandleArt from '../components/CandleArt.astro';
+import Showcase from '../components/Showcase.astro';
 import Icon from '../components/Icon.astro';
-import { products } from '../data/products';
 import { t, path, asset } from '../i18n/utils';
 import type { Lang } from '../i18n/ui';
 
@@ -11,13 +10,14 @@ const { lang } = Astro.props;
 
 /*
  * To use real photos, put them in public/images/about/ and set `photo`
- * below, e.g. photo: '/images/about/workshop.jpg'.
+ * below, e.g. photo: '/images/about/workshop.jpg'. Until then each chapter
+ * shows a product picture (`pick` = its place in the product list).
  */
 const sections = [
-  { key: 'inspiration', icon: 'sparkle', color: 'pink', photo: '', art: products[1].art },
-  { key: 'maker', icon: 'heart', color: 'lavender', photo: '', art: products[2].art },
-  { key: 'process', icon: 'flame', color: 'butter', photo: '', art: products[0].art },
-  { key: 'philosophy', icon: 'leaf', color: 'mint', photo: '', art: products[7].art },
+  { key: 'inspiration', icon: 'sparkle', color: 'pink', photo: '', pick: 1 },
+  { key: 'maker', icon: 'heart', color: 'lavender', photo: '', pick: 2 },
+  { key: 'process', icon: 'flame', color: 'butter', photo: '', pick: 0 },
+  { key: 'philosophy', icon: 'leaf', color: 'mint', photo: '', pick: 3 },
 ] as const;
 /* Workshop photos for the gallery at the bottom (public/images/about/). */
 const workshopPhotos: string[] = [];
@@ -37,7 +37,7 @@ const workshopPhotos: string[] = [];
     {sections.map((s, i) => (
       <section class:list={['chapter', 'reveal', { flip: i % 2 === 1 }]}>
         <div class={`chapter-media bg-${s.color}`}>
-          {s.photo ? <img src={asset(s.photo)} alt="" loading="lazy" width="800" height="1000" /> : <CandleArt art={s.art} label="" flame={i % 2 === 0} />}
+          {s.photo ? <img src={asset(s.photo)} alt="" loading="lazy" width="800" height="1000" /> : <Showcase index={s.pick} flame={i % 2 === 0} />}
         </div>
         <div class="chapter-text">
           <span class={`chapter-icon bg-${s.color}`} aria-hidden="true"><Icon name={s.icon} /></span>

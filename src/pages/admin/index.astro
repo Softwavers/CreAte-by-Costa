@@ -91,7 +91,10 @@ import { asset } from '../../i18n/utils';
   .list-head p { margin: 0; max-width: 560px; }
   .count { font-family: var(--font-body); font-size: 0.9rem; font-weight: 700; background: var(--cream); border-radius: 999px; padding: 0.2em 0.7em; vertical-align: middle; }
   .rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-  .row { display: grid; grid-template-columns: 72px 1fr auto; align-items: center; gap: 16px; padding: 12px 16px 12px 12px; }
+  .bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 12px; padding-left: 14px; min-height: 48px; }
+  .row { display: grid; grid-template-columns: 22px 72px 1fr auto; align-items: center; gap: 16px; padding: 12px 16px 12px 14px; }
+  .row.is-selected { border-color: var(--gold); background: var(--cream-soft); }
+  .row-select, .bulk input { width: 22px; height: 22px; accent-color: var(--gold-deep); cursor: pointer; margin: 0; }
   .row-thumb { width: 72px; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; background: var(--cream-soft); }
   .row-thumb img, .row-thumb svg { width: 100%; height: 100%; object-fit: cover; }
   .row-main p { margin: 0; }
@@ -103,7 +106,7 @@ import { asset } from '../../i18n/utils';
   .chip-edited { background: var(--butter); color: var(--gold-deep); }
   .empty { text-align: center; color: var(--ink-soft); }
   @media (max-width: 720px) {
-    .row { grid-template-columns: 64px 1fr; }
+    .row { grid-template-columns: 22px 64px 1fr; }
     .row-thumb { width: 64px; }
     .row-actions { grid-column: 1 / -1; justify-content: flex-start; }
   }

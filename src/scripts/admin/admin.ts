@@ -51,6 +51,8 @@ const newPhotos = new Map<string, Blob>();
 const previews = new Map<string, string>();
 let publishing = false;
 let deploy: { sha: string; state: 'building' | 'live' | 'saved' | 'failed' } | null = null;
+/** Ids of the products ticked in the list, for deleting several at once. */
+const selected = new Set<string>();
 
 /* ── Small helpers ─────────────────────────────────────────── */
 const s = (key: StringKey, vars: Record<string, string | number> = {}) =>
@@ -240,11 +242,14 @@ function thumb(p: Product): string {
 function listView(): string {
   const { added, edited } = pendingChanges();
   const published = new Set(original.map((p) => p.id));
+  for (const id of selected) if (!products.some((p) => p.id === id)) selected.delete(id);
+  const all = products.length > 0 && selected.size === products.length;
   const rows = products.map((p, i) => {
     const chip = added.includes(p.id) ? 'new' : edited.includes(p.id) ? 'edited' : '';
     const name = p.name[lang] || p.name.el;
     return `
-    <li class="row card">
+    <li class="row card${selected.has(p.id) ? ' is-selected' : ''}">
+      <input type="checkbox" class="row-select" data-select="${esc(p.id)}" aria-label="${s('list.select')}: ${esc(name)}" ${selected.has(p.id) ? 'checked' : ''}>
       <div class="row-thumb">${thumb(p)}</div>
       <div class="row-main">
         <p class="row-name"><strong>${esc(name)}</strong>${chip ? ` <span class="chip chip-${chip}">${s(`list.${chip}.chip`)}</span>` : ''}</p>
@@ -273,7 +278,15 @@ function listView(): string {
       </div>
       <button type="button" class="btn btn-primary" data-action="new">+ ${s('list.new')}</button>
     </div>
-    ${rows.length ? `<ul class="rows">${rows.join('')}</ul>` : `<p class="card empty">${s('list.empty')}</p>`}
+    ${rows.length ? `
+      <div class="bulk">
+        <label class="check"><input type="checkbox" data-select-all ${all ? 'checked' : ''}> ${s('list.selectAll')}</label>
+        ${selected.size ? `
+          <span class="muted">${selected.size === 1 ? s('list.selected.one') : s('list.selected.many', { n: selected.size })}</span>
+          <button type="button" class="btn btn-danger btn-small" data-action="delete-selected">${s('list.deleteSelected')}</button>
+          <button type="button" class="btn btn-ghost btn-small" data-action="clear-selection">${s('list.clearSelection')}</button>` : ''}
+      </div>
+      <ul class="rows">${rows.join('')}</ul>` : `<p class="card empty">${s('list.empty')}</p>`}
   </section>`;
 }
 
@@ -755,6 +768,16 @@ const actions: Record<string, (i: number, el: HTMLElement) => void> = {
   },
   up: (i) => { move(products, i, i - 1); renderListAndFocus(`[data-action="up"][data-index="${i - 1}"]`); },
   down: (i) => { move(products, i, i + 1); renderListAndFocus(`[data-action="down"][data-index="${i + 1}"]`); },
+  'delete-selected': () => {
+    if (!selected.size || !confirm(s('list.confirmBulkDelete', { n: selected.size }))) return;
+    products = products.filter((p) => !selected.has(p.id));
+    selected.clear();
+    renderListAndFocus('[data-select-all], [data-action="new"]');
+  },
+  'clear-selection': () => {
+    selected.clear();
+    renderListAndFocus('[data-select-all]');
+  },
   discard: () => {
     if (!confirm(s('bar.confirmDiscard'))) return;
     products = structuredClone(original);
@@ -864,6 +887,15 @@ root.addEventListener('input', (e) => {
 root.addEventListener('change', (e) => {
   const el = e.target as HTMLInputElement;
   if (el.matches('[data-upload]')) void addPhotos(el);
+  else if (el.dataset.select) {
+    if (el.checked) selected.add(el.dataset.select);
+    else selected.delete(el.dataset.select);
+    renderListAndFocus(`[data-select="${CSS.escape(el.dataset.select)}"]`);
+  } else if (el.matches('[data-select-all]')) {
+    selected.clear();
+    if (el.checked) products.forEach((p) => selected.add(p.id));
+    renderListAndFocus('[data-select-all]');
+  }
 });
 
 window.addEventListener('beforeunload', (e) => {
